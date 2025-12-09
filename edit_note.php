@@ -1,6 +1,7 @@
 <?php
 require_once 'auth.php';
 require_once 'db.php';
+
 if (!isLoggedIn()) {
     header('Location: Trangdangnhap.php');
     exit;
@@ -21,6 +22,11 @@ if (!can($note['project_id'], 'edit_note')) {
     exit;
 }
 
+// Lấy thông tin project và người tạo
+$stmt_project = $pdo->prepare("SELECT p.*, u.name as creator_name FROM projects p JOIN users u ON p.owner_id = u.id WHERE p.id = ?");
+$stmt_project->execute([$note['project_id']]);
+$project = $stmt_project->fetch();
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $title = trim($_POST['title']);
     $content = trim($_POST['content']);
@@ -36,22 +42,73 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<title>Sửa ghi chú</title>
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="css_view.css"> 
+    <meta charset="UTF-8">
+    <title>Sửa ghi chú</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css_view.css"> 
+    <style>
+        .project-info {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #1EA7FF;
+        }
+        .project-info p {
+            margin: 5px 0;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .form-textarea {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            height: 300px;
+        }
+        .btn-save {
+            padding: 12px 20px;
+            background: #28a745;
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .btn-cancel {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 10px 15px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+    </style>
 </head>
 <body>
-<div class="container"> 
-<div class="register"> 
-<h1>Sửa ghi chú: <?php echo htmlspecialchars($note['title']); ?></h1> 
-<form method="post">
-<input type="text" name="title" value="<?php echo htmlspecialchars($note['title']); ?>" placeholder="Tiêu đề" required> 
-<textarea name="content" placeholder="Nội dung" required style="height:300px;"><?php echo htmlspecialchars($note['content']); ?></textarea> 
-<button type="submit">Lưu thay đổi</button> 
-</form>
-<a href="project.php?id=<?php echo $note['project_id']; ?>">Hủy</a>
-</div>
-</div>
+    <div class="container"> 
+        <div class="register"> 
+            <h1>Sửa ghi chú: <?php echo htmlspecialchars($note['title']); ?></h1> 
+            
+            <!-- Hiển thị tên người tạo project -->
+            <div class="project-info">
+                <p><strong>Project:</strong> <?php echo htmlspecialchars($project['title']); ?></p>
+                <p><strong>Người tạo:</strong> <?php echo htmlspecialchars($project['creator_name']); ?></p>
+            </div>
+            
+            <form method="post">
+                <input type="text" name="title" value="<?php echo htmlspecialchars($note['title']); ?>" placeholder="Tiêu đề" class="form-input"> 
+                <textarea name="content" placeholder="Nội dung" class="form-textarea"><?php echo htmlspecialchars($note['content']); ?></textarea> 
+                <button type="submit" class="btn-save">Lưu thay đổi</button> 
+            </form>
+            <a href="project.php?id=<?php echo $note['project_id']; ?>" class="btn-cancel">Hủy</a>
+        </div>
+    </div>
 </body>
 </html>

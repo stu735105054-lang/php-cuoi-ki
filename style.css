@@ -1,0 +1,81 @@
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, sans-serif; }
+body { background:#f4f6f9; color:#333; line-height:1.6; }
+.container { display:flex; min-height:100vh; }
+.sidebar { width:280px; background:#ffffff; border-right:1px solid #e0e6ef; padding:20px; box-shadow: 2px 0 10px rgba(0,0,0,0.05); }
+.main { flex:1; padding:40px; background:#f8f9fc; }
+
+/* Liên kết: bỏ gạch chân hoàn toàn, hover chỉ đổi màu không underline */
+a {
+    color: #1EA7FF;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #2e0cd8;
+}
+
+/* Button: hover chỉ đổi background + shadow, không underline */
+.btn, button {
+    background: #1EA7FF;
+    color: white;
+    border: none;
+    padding: 11px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    display: inline-block;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(30,167,255,0.2);
+    text-decoration: none; /* Bỏ underline nếu là a.btn */
+}
+.btn:hover, button:hover { background:#0d8bff; transform: translateY(-2px); box-shadow:0 5px 15px rgba(30,167,255,0.3); }
+.btn-danger { background:#e74c3c; }
+.btn-danger:hover { background:#c0392b; box-shadow:0 5px 15px rgba(231,76,60,0.3); }
+
+/* Sidebar menu: thêm khoảng cách giữa nút */
+.sidebar-menu {
+    margin-top: 20px;
+}
+.sidebar-menu .btn {
+    display: block;
+    margin: 10px 0; /* Khoảng cách giữa nút và xung quanh */
+    width: 100%; /* Full width cho sidebar */
+}
+
+/* Tiêu đề sidebar đẹp hơn: to hơn, bold, color nổi bật */
+.sb-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #1EA7FF;
+    margin-bottom: 20px;
+}
+
+/* Project header đẹp */
+.project-header {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+}
+.project-header h2 { font-size: 28px; margin-bottom: 10px; color: #2c3e50; }
+
+/* Preview ảnh đẹp */
+.preview-img {
+    max-width: 100%;
+    max-height: 400px;
+    border-radius: 12px;
+    margin: 15px 0;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    display: block;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container { flex-direction: column; }
+    .sidebar { width: 100%; border-right:none; border-bottom:1px solid #eee; }
+    .main { padding: 20px; }
+}

@@ -36,6 +36,15 @@ $canChangeStatus = $role == ROLE_OWNER;
         .status-selector { padding: 10px 16px; font-size: 16px; border-radius: 8px; border: 1px solid #ddd; }
         .action-bar { margin: 20px 0; display: flex; gap: 10px; flex-wrap: wrap; }
         .back-btn { background: #666; }
+        
+        /* Thêm CSS cho thông tin dự án */
+        .project-info { 
+            background: #f8f9fa; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            border-left: 4px solid #1EA7FF;
+        }
     </style>
 </head>
 <body>
@@ -71,9 +80,14 @@ $canChangeStatus = $role == ROLE_OWNER;
                     </select>
                 <?php endif; ?>
             </div>
-            <div class="note-meta">
-                Tác giả: <?= htmlspecialchars($note['author_name']) ?> | Dự án: <?= htmlspecialchars($note['project_title']) ?> | Cập nhật: <?= $note['updated_at'] ?>
+            
+            <!-- Hiển thị thông tin dự án và người tạo -->
+            <div class="project-info">
+                <p><strong>Dự án:</strong> <?= htmlspecialchars($note['project_title']) ?></p>
+                <p><strong>Tác giả ghi chú:</strong> <?= htmlspecialchars($note['author_name']) ?></p>
+                <p><strong>Cập nhật:</strong> <?= $note['updated_at'] ?></p>
             </div>
+            
             <div class="note-content">
                 <?= nl2br(htmlspecialchars($note['content'])) ?>
             </div>

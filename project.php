@@ -69,7 +69,7 @@ $notes = $stmt->fetchAll();
             <?php } ?>
             <?php if (can($pid, 'manage_members')) { ?>
                 <form method="post">
-                    <input type="text" name="title" value="<?php echo htmlspecialchars($project['title']); ?>" required>
+                    <input type="text" name="title" value="<?php echo htmlspecialchars($project['title']); ?>">
                     <textarea name="desc"><?php echo htmlspecialchars($project['description']); ?></textarea>
                     <button name="edit_project" type="submit">Sửa dự án</button>
                 </form>
@@ -81,8 +81,8 @@ $notes = $stmt->fetchAll();
                 <h2>Thêm Ghi Chú Mới</h2>
                 <form method="post" action="add_note.php" enctype="multipart/form-data">
                     <input type="hidden" name="project_id" value="<?php echo $pid; ?>">
-                    <input type="text" name="title" placeholder="Tiêu đề ghi chú" required style="width:100%;padding:12px;margin:10px 0;">
-                    <textarea name="content" placeholder="Nội dung ghi chú" required style="width:100%;padding:12px;height:150px;"></textarea>
+                    <input type="text" name="title" placeholder="Tiêu đề ghi chú" style="width:100%;padding:12px;margin:10px 0;">
+                    <textarea name="content" placeholder="Nội dung ghi chú" style="width:100%;padding:12px;height:150px;"></textarea>
                     <input type="file" name="note_file" style="margin:10px 0;">
                     <button type="submit">Thêm Ghi Chú</button>
                 </form>
@@ -90,10 +90,18 @@ $notes = $stmt->fetchAll();
         <?php } ?>
         
         <?php foreach ($notes as $note): ?>
-            <div class="note">
-                <h3><?php echo htmlspecialchars($note['title']); ?></h3>
-                <p><?php echo nl2br(htmlspecialchars($note['content'])); ?></p>
-                <small>Trạng thái: <?php echo $STATUSES[$note['status']]; ?> - Tác giả: <?php echo htmlspecialchars($note['author']); ?> - Cập nhật: <?php echo $note['updated_at']; ?></small>
+            <div class="note" style="margin-bottom: 25px; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
+                <h3 style="color: #2c3e50; margin-bottom: 12px;"><?php echo htmlspecialchars($note['title']); ?></h3>
+                
+                <!-- Tác giả và thông tin -->
+                <div style="background: #f8f9fa; padding: 10px; border-radius: 6px; margin-bottom: 15px; border-left: 3px solid #1EA7FF;">
+                    <p><strong>Tác giả:</strong> <?php echo htmlspecialchars($note['author']); ?></p>
+                    <p><strong>Cập nhật:</strong> <?php echo $note['updated_at']; ?></p>
+                    <p><strong>Trạng thái:</strong> <?php echo $STATUSES[$note['status']]; ?></p>
+                </div>
+                
+                <p style="line-height: 1.7; margin-bottom: 15px;"><?php echo nl2br(htmlspecialchars($note['content'])); ?></p>
+                
                 <?php if ($note['file_path']) { ?>
                     <?php 
                     $ext = pathinfo($note['file_path'], PATHINFO_EXTENSION);
@@ -101,26 +109,32 @@ $notes = $stmt->fetchAll();
                         <img src="<?php echo $note['file_path']; ?>" alt="Preview" class="preview-img">
                     <?php } ?>
                 <?php } ?>
-                <?php if (can($pid, 'change_status')) { ?>
-                    <form method="post" action="update_status.php">
-                        <input type="hidden" name="note_id" value="<?php echo $note['id']; ?>">
-                        <select name="status">
-                            <?php foreach ($STATUSES as $k => $v): ?>
-                                <option value="<?php echo $k; ?>" <?php if ($note['status'] == $k) echo 'selected'; ?>><?php echo $v; ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                        <button type="submit">Cập nhật</button>
-                    </form>
-                <?php } ?>
-                <?php $canEdit = can($pid, 'edit_note') && ($note['author_id'] == getUserId() || $role >= ROLE_MODERATOR); ?>
-                <?php if ($canEdit) { ?>
-                    <a href="edit_note.php?id=<?php echo $note['id']; ?>" class="btn btn-small">Sửa</a>
-                <?php } ?>
-                <?php $canDelete = can($pid, 'delete_note') && ($note['author_id'] == getUserId() || $role >= ROLE_MODERATOR); ?>
-                <?php if ($canDelete) { ?>
-                    <a href="delete_note.php?id=<?php echo $note['id']; ?>&project_id=<?php echo $pid; ?>" class="btn btn-small btn-danger" onclick="return confirm('Xóa ghi chú này?')">Xóa</a>
-                <?php } ?>
-                <a href="share_note.php?id=<?php echo $note['id']; ?>" class="btn btn-small">Chia sẻ</a>
+                
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+                    <?php if (can($pid, 'change_status')) { ?>
+                        <form method="post" action="update_status.php" style="display: inline-block; margin-right: 10px;">
+                            <input type="hidden" name="note_id" value="<?php echo $note['id']; ?>">
+                            <select name="status" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px;">
+                                <?php foreach ($STATUSES as $k => $v): ?>
+                                    <option value="<?php echo $k; ?>" <?php if ($note['status'] == $k) echo 'selected'; ?>><?php echo $v; ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="submit" style="padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Cập nhật</button>
+                        </form>
+                    <?php } ?>
+                    
+                    <?php $canEdit = can($pid, 'edit_note') && ($note['author_id'] == getUserId() || $role >= ROLE_MODERATOR); ?>
+                    <?php if ($canEdit) { ?>
+                        <a href="edit_note.php?id=<?php echo $note['id']; ?>" class="btn btn-small" style="background: #28a745; padding: 8px 15px;">Sửa</a>
+                    <?php } ?>
+                    
+                    <?php $canDelete = can($pid, 'delete_note') && ($note['author_id'] == getUserId() || $role >= ROLE_MODERATOR); ?>
+                    <?php if ($canDelete) { ?>
+                        <a href="delete_note.php?id=<?php echo $note['id']; ?>&project_id=<?php echo $pid; ?>" class="btn btn-small btn-danger" onclick="return confirm('Xóa ghi chú này?')" style="padding: 8px 15px;">Xóa</a>
+                    <?php } ?>
+                    
+                    <a href="share_note.php?id=<?php echo $note['id']; ?>" class="btn btn-small" style="background: #6f42c1; padding: 8px 15px;">Chia sẻ</a>
+                </div>
             </div>
         <?php endforeach; ?>
 
@@ -129,7 +143,7 @@ $notes = $stmt->fetchAll();
                 <h3>Mời thành viên mới</h3>
                 <form method="post" action="invite_member.php">
                     <input type="hidden" name="project_id" value="<?php echo $pid; ?>">
-                    <input type="email" name="email" placeholder="Email người mời" required>
+                    <input type="email" name="email" placeholder="Email người mời">
                     <select name="role">
                         <option value="1">Observer (Level 1)</option>
                         <option value="2">Contributor (Level 2)</option>

@@ -68,20 +68,25 @@ $notifs = $stmt->fetchAll();
     </aside>
     <main class="main">
         <h1>Xin chào, <?php echo getUserName(); ?>!</h1>
-        <div class="project-header">
-            <h2>Tạo Dự án Mới</h2>
+        
+        <div class="project-header" style="margin-bottom: 30px; padding: 25px; background: #fff; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08);">
+            <h2 style="margin-bottom: 15px; color: #2c3e50;">Tạo Dự án Mới</h2>
             <form method="post" enctype="multipart/form-data">
-                <input type="text" name="title" placeholder="Tên dự án" required style="width:100%;padding:12px;margin:10px 0;">
-                <textarea name="desc" placeholder="Mô tả dự án" style="width:100%;padding:12px;"></textarea>
-                <input type="file" name="project_file" style="margin:10px 0;">
-                <button name="create" type="submit">Tạo Dự án</button>
+                <input type="text" name="title" placeholder="Tên dự án" style="width:100%;padding:12px;margin:10px 0; border: 1px solid #ddd; border-radius: 6px;"> 
+                <textarea name="desc" placeholder="Mô tả dự án" style="width:100%;padding:12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; height: 100px;"></textarea>
+                <input type="file" name="project_file" style="margin:10px 0; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
+                <button name="create" type="submit" style="padding: 12px 20px; background: #28a745; border: none; color: white; border-radius: 6px; cursor: pointer;">Tạo Dự án</button>
             </form>
         </div>
-        <h2>Dự án của bạn</h2>
+        
+        <h2 style="margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #eee;">Dự án của bạn</h2>
+        
         <?php foreach ($projects as $p): ?>
-            <div class="note">
-                <h3><?php echo htmlspecialchars($p['title']); ?> <?php if ($p['role'] == 4) echo "(Bạn là chủ)"; ?></h3>
-                <p><?php echo nl2br(htmlspecialchars($p['description'] ? $p['description'] : 'Chưa có mô tả')); ?></p>
+            <div class="note" style="margin-bottom: 20px; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
+                <h3 style="color: #2c3e50; margin-bottom: 10px;"><?php echo htmlspecialchars($p['title']); ?> <?php if ($p['role'] == 4) echo "<span style='color: #28a745;'>(Bạn là chủ)</span>"; ?></h3>
+                
+                <p style="margin-bottom: 15px; line-height: 1.6;"><?php echo nl2br(htmlspecialchars($p['description'] ? $p['description'] : 'Chưa có mô tả')); ?></p>
+                
                 <?php if ($p['file_path']): 
                     $ext = strtolower(pathinfo($p['file_path'], PATHINFO_EXTENSION));
                     $img_ext = ['jpg','jpeg','png','gif','webp','bmp'];
@@ -90,7 +95,10 @@ $notifs = $stmt->fetchAll();
                         <img src="<?php echo UPLOAD_URL . str_replace('uploads/', '', $p['file_path']); ?>" alt="Preview" class="preview-img">
                     <?php endif; ?>
                 <?php endif; ?>
-                <a href="project.php?id=<?php echo $p['id']; ?>" class="btn">Vào dự án</a>
+                
+                <div style="margin-top: 15px;">
+                    <a href="project.php?id=<?php echo $p['id']; ?>" class="btn" style="background: #007bff; padding: 10px 20px;">Vào dự án</a>
+                </div>
             </div>
         <?php endforeach; ?>
     </main>

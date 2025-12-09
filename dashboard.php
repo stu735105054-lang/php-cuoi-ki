@@ -87,7 +87,7 @@ $notifs = $stmt->fetchAll();
                     $img_ext = ['jpg','jpeg','png','gif','webp','bmp'];
                 ?>
                     <?php if (in_array($ext, $img_ext)): ?>
-                        <img src="<?php echo UPLOAD_URL . basename($p['file_path']); ?>" alt="Preview" class="preview-img">
+                        <img src="<?php echo UPLOAD_URL . str_replace('uploads/', '', $p['file_path']); ?>" alt="Preview" class="preview-img">
                     <?php endif; ?>
                 <?php endif; ?>
                 <a href="project.php?id=<?php echo $p['id']; ?>" class="btn">Vào dự án</a>

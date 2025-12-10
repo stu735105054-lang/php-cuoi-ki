@@ -17,9 +17,10 @@ if (!$note || !can($pid, 'delete_note')) {
     exit;
 }
 
+// Xóa note
 $stmt = $pdo->prepare("DELETE FROM notes WHERE id = ?");
 $stmt->execute([$note_id]);
-addNotification(getUserId(), "Bạn đã xóa ghi chú");
+addNotification(getUserId(), "Bạn đã xóa ghi chú: " . $note['title']);
 
 header("Location: project.php?id=$pid");
 exit;

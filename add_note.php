@@ -21,6 +21,7 @@ if ($title && $content) {
     $note_id = $pdo->lastInsertId();
     addNotification(getUserId(), "Bạn đã thêm ghi chú mới: $title");
     
+    // Thông báo cho owner nếu không phải là owner
     $stmt = $pdo->prepare("SELECT owner_id FROM projects WHERE id = ?");
     $stmt->execute([$pid]);
     $owner = $stmt->fetchColumn();
@@ -28,6 +29,7 @@ if ($title && $content) {
         addNotification($owner, getUserName() . " đã thêm ghi chú mới trong dự án của bạn");
     }
     
+    // Xử lý upload file
     if (isset($_FILES['note_file']) && $_FILES['note_file']['error'] == 0) {
         if (!is_dir(UPLOAD_DIR)) mkdir(UPLOAD_DIR, 0755, true);
         $file = $_FILES['note_file'];

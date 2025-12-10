@@ -19,7 +19,7 @@ if (isset($_POST['create'])) {
     addNotification($user_id, "Bạn đã tạo dự án mới: $title");
     
     if (isset($_FILES['project_file']) && $_FILES['project_file']['error'] == 0) {
-        if (!is_dir(UPLOAD_DIR)) mkdir(UPLOAD_DIR, 0755, true);  // Check và tạo folder nếu chưa có
+        if (!is_dir(UPLOAD_DIR)) mkdir(UPLOAD_DIR, 0755, true);  // Tạo folder nếu chưa có
         $file = $_FILES['project_file'];
         $name = time() . "_" . basename($file['name']);
         $target = UPLOAD_DIR . $name;
@@ -56,7 +56,7 @@ $notifs = $stmt->fetchAll();
         <div class="notifications">
             <strong>Thông báo</strong>
             <?php foreach ($notifs as $n): ?>
-                <div class="notif-item"><?php echo htmlspecialchars($n['message']); ?></div>
+                <div class="notif-item"><?php echo htmlspecialchars($n['message']); ?> (<?php echo $n['created_at']; ?>)</div>
             <?php endforeach; ?>
         </div>
         <div class="sidebar-menu">
@@ -67,15 +67,15 @@ $notifs = $stmt->fetchAll();
         </div>
     </aside>
     <main class="main">
-        <h1>Xin chào, <?php echo getUserName(); ?>!</h1>
+        <h1>Dashboard - Chào <?php echo getUserName(); ?></h1>
         
-        <div class="project-header" style="margin-bottom: 30px; padding: 25px; background: #fff; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08);">
-            <h2 style="margin-bottom: 15px; color: #2c3e50;">Tạo Dự án Mới</h2>
+        <div class="note" style="margin-bottom: 30px; padding: 25px; background: #fff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+            <h3>Tạo Dự án Mới</h3>
             <form method="post" enctype="multipart/form-data">
-                <input type="text" name="title" placeholder="Tên dự án" style="width:100%;padding:12px;margin:10px 0; border: 1px solid #ddd; border-radius: 6px;"> 
-                <textarea name="desc" placeholder="Mô tả dự án" style="width:100%;padding:12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; height: 100px;"></textarea>
-                <input type="file" name="project_file" style="margin:10px 0; padding: 8px; border: 1px solid #ddd; border-radius: 6px;">
-                <button name="create" type="submit" style="padding: 12px 20px; background: #28a745; border: none; color: white; border-radius: 6px; cursor: pointer;">Tạo Dự án</button>
+                <input type="text" name="title" placeholder="Tiêu đề dự án" required style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ddd; border-radius:6px;">
+                <textarea name="desc" placeholder="Mô tả" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ddd; border-radius:6px; height:100px;"></textarea>
+                <input type="file" name="project_file" style="margin-bottom:10px;">
+                <button type="submit" name="create" style="padding:12px 24px; background: #28a745; border: none; color: white; border-radius: 6px; cursor: pointer;">Tạo Dự án</button>
             </form>
         </div>
         
@@ -83,7 +83,14 @@ $notifs = $stmt->fetchAll();
         
         <?php foreach ($projects as $p): ?>
             <div class="note" style="margin-bottom: 20px; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
-                <h3 style="color: #2c3e50; margin-bottom: 10px;"><?php echo htmlspecialchars($p['title']); ?> <?php if ($p['role'] == 4) echo "<span style='color: #28a745;'>(Bạn là chủ)</span>"; ?></h3>
+                <h3 style="color: #2c3e50; margin-bottom: 10px;"><?php echo htmlspecialchars($p['title']); ?> 
+                <?php if ($p['role'] == 4) echo "<span style='color: #28a745;'>(Bạn là chủ)</span>";
+                else {
+                    $row = $pdo->prepare("SELECT name FROM users WHERE id = (SELECT owner_id FROM projects WHERE id = ?)");
+                    $row->execute([$p['id']]);
+                    $owner_name = $row->fetchColumn();
+                    echo "<span style='color: #144ae0ff;'>(Tài khoản: " . htmlspecialchars($owner_name) . ")</span>";
+                } ?></h3>
                 
                 <p style="margin-bottom: 15px; line-height: 1.6;"><?php echo nl2br(htmlspecialchars($p['description'] ? $p['description'] : 'Chưa có mô tả')); ?></p>
                 
@@ -92,7 +99,7 @@ $notifs = $stmt->fetchAll();
                     $img_ext = ['jpg','jpeg','png','gif','webp','bmp'];
                 ?>
                     <?php if (in_array($ext, $img_ext)): ?>
-                        <img src="<?php echo UPLOAD_URL . str_replace('uploads/', '', $p['file_path']); ?>" alt="Preview" class="preview-img">
+                        <img src="<?php echo UPLOAD_URL . basename($p['file_path']); ?>" alt="Preview" class="preview-img" style="max-width:100%; border-radius:8px; margin-top:10px;">
                     <?php endif; ?>
                 <?php endif; ?>
                 

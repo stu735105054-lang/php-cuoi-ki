@@ -48,6 +48,14 @@ $notes = $stmt->fetchAll();
         <div class="notifications">
             <strong>Thông báo</strong>
             <div class="notif-item">Bạn đang xem dự án: <?php echo htmlspecialchars($project['title']); ?></div>
+            <div class="notif-item">
+                <?php
+                $row = $pdo->prepare("SELECT name FROM users WHERE id = (SELECT owner_id FROM projects WHERE id = ?)");
+                $row->execute([$pid]);
+                $owner_name = $row->fetchColumn();
+                echo "<span style='color: #144ae0ff;'>(Tài khoản: " . htmlspecialchars($owner_name) . ")</span>";
+                ?>
+            </div>
         </div>
         <div class="sidebar-menu">
             <?php if (isAdmin()): ?>
@@ -59,69 +67,67 @@ $notes = $stmt->fetchAll();
     <main class="main">
         <div class="project-header">
             <h2><?php echo htmlspecialchars($project['title']); ?></h2>
-            <p><?php echo nl2br(htmlspecialchars($project['description'] ? $project['description'] : 'Chưa có mô tả')); ?></p>
-            <?php if ($project['file_path']) { ?>
-                <?php 
-                $ext = pathinfo($project['file_path'], PATHINFO_EXTENSION);
-                if (in_array(strtolower($ext), ['jpg', 'png', 'gif'])) { ?>
-                    <img src="<?php echo $project['file_path']; ?>" alt="Preview" class="preview-img">
-                <?php } ?>
-            <?php } ?>
+            <p><?php echo nl2br(htmlspecialchars($project['description'])); ?></p>
             <?php if (can($pid, 'manage_members')) { ?>
                 <form method="post">
-                    <input type="text" name="title" value="<?php echo htmlspecialchars($project['title']); ?>">
+                    <input type="text" name="title" value="<?php echo htmlspecialchars($project['title']); ?>" required>
                     <textarea name="desc"><?php echo htmlspecialchars($project['description']); ?></textarea>
-                    <button name="edit_project" type="submit">Sửa dự án</button>
+                    <button type="submit" name="edit_project" style="padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Cập nhật</button>
                 </form>
             <?php } ?>
+            
+            <?php if ($project['file_path']): 
+                $ext = strtolower(pathinfo($project['file_path'], PATHINFO_EXTENSION));
+                $img_ext = ['jpg','jpeg','png','gif','webp','bmp'];
+            ?>
+                <?php if (in_array($ext, $img_ext)): ?>
+                    <img src="<?php echo UPLOAD_URL . basename($project['file_path']); ?>" alt="Preview" class="preview-img">
+                <?php endif; ?>
+            <?php endif; ?>
         </div>
         
         <?php if (can($pid, 'add_note')) { ?>
-            <div class="project-header"> <!-- Dùng class tương tự cho form add note -->
-                <h2>Thêm Ghi Chú Mới</h2>
+            <div class="note" style="background:#e2e3e5; padding:20px; border-radius:10px; margin-bottom:30px;">
+                <h3>Thêm Ghi Chú Mới</h3>
                 <form method="post" action="add_note.php" enctype="multipart/form-data">
                     <input type="hidden" name="project_id" value="<?php echo $pid; ?>">
-                    <input type="text" name="title" placeholder="Tiêu đề ghi chú" style="width:100%;padding:12px;margin:10px 0;">
-                    <textarea name="content" placeholder="Nội dung ghi chú" style="width:100%;padding:12px;height:150px;"></textarea>
-                    <input type="file" name="note_file" style="margin:10px 0;">
-                    <button type="submit">Thêm Ghi Chú</button>
+                    <input type="text" name="title" placeholder="Tiêu đề" required style="width:100%; padding:10px; margin-bottom:10px;">
+                    <textarea name="content" placeholder="Nội dung" required style="width:100%; height:150px; padding:10px; margin-bottom:10px;"></textarea>
+                    <input type="file" name="note_file" style="margin-bottom:10px;">
+                    <button type="submit" style="padding:10px 20px; background:#28a745; color:white; border:none; cursor:pointer;">Thêm</button>
                 </form>
             </div>
         <?php } ?>
         
         <?php foreach ($notes as $note): ?>
-            <div class="note" style="margin-bottom: 25px; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.08);">
-                <h3 style="color: #2c3e50; margin-bottom: 12px;"><?php echo htmlspecialchars($note['title']); ?></h3>
+            <div class="note" style="margin-bottom:20px; padding:20px; background:white; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                <h3><?php echo htmlspecialchars($note['title']); ?></h3>
+                <p style="color:#666; font-size:14px;">Tác giả: <?php echo htmlspecialchars($note['author']); ?> | Cập nhật: <?php echo $note['updated_at']; ?></p>
+                <p><?php echo nl2br(htmlspecialchars($note['content'])); ?></p>
                 
-                <!-- Tác giả và thông tin -->
-                <div style="background: #f8f9fa; padding: 10px; border-radius: 6px; margin-bottom: 15px; border-left: 3px solid #1EA7FF;">
-                    <p><strong>Tác giả:</strong> <?php echo htmlspecialchars($note['author']); ?></p>
-                    <p><strong>Cập nhật:</strong> <?php echo $note['updated_at']; ?></p>
-                    <p><strong>Trạng thái:</strong> <?php echo $STATUSES[$note['status']]; ?></p>
-                </div>
+                <?php if ($note['file_path']): 
+                    $ext = strtolower(pathinfo($note['file_path'], PATHINFO_EXTENSION));
+                    $img_ext = ['jpg','jpeg','png','gif','webp','bmp'];
+                ?>
+                    <?php if (in_array($ext, $img_ext)): ?>
+                        <img src="<?php echo UPLOAD_URL . basename($note['file_path']); ?>" alt="Preview" class="preview-img">
+                    <?php endif; ?>
+                <?php endif; ?>
                 
-                <p style="line-height: 1.7; margin-bottom: 15px;"><?php echo nl2br(htmlspecialchars($note['content'])); ?></p>
-                
-                <?php if ($note['file_path']) { ?>
-                    <?php 
-                    $ext = pathinfo($note['file_path'], PATHINFO_EXTENSION);
-                    if (in_array(strtolower($ext), ['jpg', 'png', 'gif'])) { ?>
-                        <img src="<?php echo $note['file_path']; ?>" alt="Preview" class="preview-img">
-                    <?php } ?>
-                <?php } ?>
-                
-                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
-                    <?php if (can($pid, 'change_status')) { ?>
-                        <form method="post" action="update_status.php" style="display: inline-block; margin-right: 10px;">
+                <div style="margin-top:15px; display:flex; gap:10px;">
+                    <span style="padding:8px 15px; background:#ffc107; color:white; border-radius:4px;"><?php echo $STATUSES[$note['status']]; ?></span>
+                    
+                    <?php if (can($pid, 'change_status')): ?>
+                        <form method="post" action="update_status.php" style="display:inline;">
                             <input type="hidden" name="note_id" value="<?php echo $note['id']; ?>">
-                            <select name="status" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px;">
-                                <?php foreach ($STATUSES as $k => $v): ?>
-                                    <option value="<?php echo $k; ?>" <?php if ($note['status'] == $k) echo 'selected'; ?>><?php echo $v; ?></option>
-                                <?php endforeach; ?>
+                            <select name="status" onchange="this.form.submit()">
+                                <option value="pending" <?php if($note['status']=='pending') echo 'selected'; ?>>Chờ xử lý</option>
+                                <option value="confirmed" <?php if($note['status']=='confirmed') echo 'selected'; ?>>Đã xác nhận</option>
+                                <option value="processing" <?php if($note['status']=='processing') echo 'selected'; ?>>Đang xử lý</option>
+                                <option value="resolved" <?php if($note['status']=='resolved') echo 'selected'; ?>>Đã giải quyết</option>
                             </select>
-                            <button type="submit" style="padding: 6px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">Cập nhật</button>
                         </form>
-                    <?php } ?>
+                    <?php endif; ?>
                     
                     <?php $canEdit = can($pid, 'edit_note') && ($note['author_id'] == getUserId() || $role >= ROLE_MODERATOR); ?>
                     <?php if ($canEdit) { ?>
@@ -139,22 +145,22 @@ $notes = $stmt->fetchAll();
         <?php endforeach; ?>
 
         <?php if (can($pid, 'manage_members')) { ?>
-            <div class="note" style="background:#fff3cd;">
+            <div class="note" style="background:#fff3cd; padding:20px; border-radius:10px; margin-bottom:30px;">
                 <h3>Mời thành viên mới</h3>
                 <form method="post" action="invite_member.php">
                     <input type="hidden" name="project_id" value="<?php echo $pid; ?>">
-                    <input type="email" name="email" placeholder="Email người mời">
-                    <select name="role">
+                    <input type="email" name="email" placeholder="Email người mời" required style="width:100%; padding:10px; margin-bottom:10px;">
+                    <select name="role" style="width:100%; padding:10px; margin-bottom:10px;">
                         <option value="1">Observer (Level 1)</option>
                         <option value="2">Contributor (Level 2)</option>
                         <option value="3">Moderator (Level 3)</option>
                     </select>
-                    <button type="submit">Mời tham gia</button>
+                    <button type="submit" style="padding:10px 20px; background:#007bff; color:white; border:none; cursor:pointer;">Mời tham gia</button>
                 </form>
             </div>
         <?php } ?>
         
-        <a href="dashboard.php" class="btn" style="margin-top:20px;">Quay về Dashboard</a>
+        <a href="dashboard.php" class="btn" style="margin-top:20px; padding:10px 20px; background:#6c757d; color:white;">Quay về Dashboard</a>
     </main>
 </div>
 </body>

@@ -34,6 +34,11 @@ $projects = $pdo->query("SELECT * FROM projects")->fetchAll();
     <meta charset="UTF-8">
     <title>Admin Panel</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        table { width:100%; border-collapse:collapse; margin-bottom:30px; }
+        th, td { padding:10px; border:1px solid #ddd; text-align:left; }
+        th { background:#f8f9fa; }
+    </style>
 </head>
 <body>
 <div class="container">
@@ -44,7 +49,7 @@ $projects = $pdo->query("SELECT * FROM projects")->fetchAll();
             <div class="notif-item">Bạn đang ở trang Admin</div>
         </div>
         <div class="sidebar-menu">
-            <a href="admin.php" class="btn">Trang Quản Trị (Admin)</a> <!-- Luôn hiển thị vì đang ở admin -->
+            <a href="admin.php" class="btn">Trang Quản Trị (Admin)</a>
             <a href="logout.php" class="btn btn-danger">Đăng xuất</a>
         </div>
     </aside>
@@ -95,7 +100,7 @@ $projects = $pdo->query("SELECT * FROM projects")->fetchAll();
             <?php endforeach; ?>
         </table>
 
-        <a href="dashboard.php" class="btn">Quay về Dashboard</a>
+        <a href="dashboard.php" class="btn" style="padding:10px 20px; background:#007bff; color:white;">Quay về Dashboard</a>
     </main>
 </div>
 </body>

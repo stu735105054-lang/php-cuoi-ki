@@ -15,10 +15,13 @@ if (can($pid, 'manage_members')) {
     $stmt->execute([$email]);
     $user = $stmt->fetch();
     if ($user) {
+        // Thêm thành viên nếu chưa có
         $stmt = $pdo->prepare("INSERT IGNORE INTO project_members (project_id, user_id, role) VALUES (?, ?, ?)");
         $stmt->execute([$pid, $user['id'], $role]);
         addNotification($user['id'], "Bạn được mời tham gia dự án với vai trò level $role");
         addNotification(getUserId(), "Đã mời $email vào dự án");
+    } else {
+        // Nếu email không tồn tại, có thể thêm thông báo lỗi, nhưng tạm bỏ qua
     }
 }
 header("Location: project.php?id=$pid");

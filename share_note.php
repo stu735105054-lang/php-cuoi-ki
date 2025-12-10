@@ -3,7 +3,7 @@ require_once 'auth.php';
 require_once 'db.php';
 header('Content-Type: application/json');
 
-$note_id = (int)$_GET['id'];
+$note_id = (int)$_POST['note_id'];  // Thay vì GET, dùng POST từ form
 $stmt = $pdo->prepare("SELECT project_id, title FROM notes WHERE id = ?");
 $stmt->execute([$note_id]);
 $note = $stmt->fetch();
@@ -12,7 +12,7 @@ if (!$note) {
     exit;
 }
 
-$email = $_POST['email'] ?? '';
+$email = trim($_POST['email'] ?? '');
 if ($email) {
     $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
     $stmt->execute([$email]);
@@ -26,6 +26,6 @@ if ($email) {
 } else {
     echo json_encode(['success' => false]);
 }
-header("Location: project.php?id=" . $note['project_id']);
+header("Location: note.php?id=" . $note_id);  // Redirect về note
 exit;
 ?>

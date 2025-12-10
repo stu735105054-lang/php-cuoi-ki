@@ -17,6 +17,6 @@ $stmt = $pdo->prepare("UPDATE notes SET status = ? WHERE id = ?");
 $stmt->execute([$status, $note_id]);
 addNotification(getUserId(), "Đã thay đổi trạng thái ghi chú thành: " . $STATUSES[$status]);
 
-header("Location: project.php?id=" . $note['project_id']);
+header("Location: note.php?id=" . $note_id);  // Redirect về note detail để xem thay đổi
 exit;
 ?>
